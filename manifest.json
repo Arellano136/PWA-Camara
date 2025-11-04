@@ -6,7 +6,6 @@
   "background_color": "#1A202C",
   "theme_color": "#000000",
   "description": "Aplicación web progresiva...",
-  "orientation":"portrait",
   "icons": [
     {
       "src": "./img/icons/192.png",
