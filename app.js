@@ -39,7 +39,7 @@ async function openCamera() {
         video.srcObject = stream;
 
         cameraContainer.style.display = 'block';
-        openCameraBtn.textContent = '✅ Cámara Abierta';
+        openCameraBtn.textContent = 'Cámara Abierta';
         openCameraBtn.disabled = true;
 
         console.log('Cámara abierta exitosamente');
@@ -79,6 +79,7 @@ async function takePhoto() {
     // Guardar en PouchDB
     await savePhoto(imageDataURL);
 
+        closeCamera();
     // Actualizar galería
     await loadGallery();
 }
@@ -183,7 +184,7 @@ function closeCamera() {
         stream = null;
         video.srcObject = null;
         cameraContainer.style.display = 'none';
-        openCameraBtn.textContent = '📸 Abrir Cámara';
+        openCameraBtn.textContent = 'Abrir Cámara';
         openCameraBtn.disabled = false;
         console.log('Cámara cerrada');
     }

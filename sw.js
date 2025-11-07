@@ -1,10 +1,13 @@
 // Service Worker para PWA
 const CACHE_NAME = 'camara-pwa-v1'; // Nombre/versión del caché
 const urlsToCache = [ // Lista de archivos a guardar en caché
-    '/',
-    '/index.html',
-    '/app.js',
-    '/manifest.json'
+    './',
+    './index.html',
+    './app.js',
+    './manifest.json',
+    './styles/styles.css',
+    'https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css',
+    'https://cdn.jsdelivr.net/npm/pouchdb@8.0.1/dist/pouchdb.min.js'
 ];
 
 // Instalar Service Worker
