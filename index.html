@@ -1,35 +1,147 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="manifest" href="./manifest.json" />
-    <link href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css" rel="stylesheet" />
 
-    <title>PWA Camara</title>
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/pouchdb@8.0.1/dist/pouchdb.min.js"></script>
+    <title>PWA Cámara</title>
+    <style>
+        #canvas {
+            display: none;
+        }
+        
+        #gallery {
+            display: flex;
+            overflow-x: auto;
+            gap: 12px;
+            padding: 16px 0;
+            margin-top: 20px;
+            scroll-behavior: smooth;
+        }
+        
+        #gallery::-webkit-scrollbar {
+            height: 8px;
+        }
+        
+        #gallery::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        #gallery::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        
+        #gallery::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        .gallery-item {
+            flex-shrink: 0;
+            width: 200px;
+            height: 150px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .delete-photo-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background 0.2s;
+        }
+        
+        .delete-photo-btn:hover {
+            background: rgba(220, 38, 38, 1);
+        }
+        
+        #galleryContainer {
+            margin-top: 30px;
+        }
+        
+        .gallery-empty {
+            text-align: center;
+            color: #6b7280;
+            padding: 40px;
+            font-style: italic;
+        }
+    </style>
 </head>
 
-<body>
-    <h1>PWA Camara</h1>
-    <button type="button" id="openCamera"
-        class="text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
-        Abrir Camara
-    </button>
-    <div id="cameraContainer" style="display: none">
-        <video class="w-64" autoplay controls id="video"></video>
+<body class="bg-gray-50 p-6">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">📷 PWA Cámara</h1>
+        
+        <div class="space-y-4">
+            <button type="button" id="openCamera"
+                class="text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-medium rounded-lg text-sm px-5 py-2.5">
+                📸 Abrir Cámara
+            </button>
 
-        <button id="takePhoto"
-            class="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 group-hover:from-pink-500 group-hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200 dark:focus:ring-pink-800">
-            <span
-                class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-transparent group-hover:dark:bg-transparent">tomar
-                foto
-            </span>
-        </button>
+            <div id="cameraContainer" style="display: none" class="space-y-4">
+                <div class="relative inline-block">
+                    <video class="w-full max-w-md rounded-lg shadow-lg" autoplay playsinline id="video"></video>
+                </div>
+
+                <div class="flex gap-3">
+                    <button id="takePhoto"
+                        class="relative inline-flex items-center justify-center p-0.5 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-pink-500 to-orange-400 hover:from-pink-500 hover:to-orange-400 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-pink-200">
+                        <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
+                            📷 Tomar Foto
+                        </span>
+                    </button>
+
+                    <button id="switchCamera"
+                        class="relative inline-flex items-center justify-center p-0.5 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 hover:from-cyan-500 hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200">
+                        <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
+                            🔄 Cambiar Cámara
+                        </span>
+                    </button>
+                </div>
+            </div>
+
+            <canvas id="canvas" width="640" height="480"></canvas>
+        </div>
+
+        <div id="galleryContainer">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-semibold text-gray-700">🖼️ Galería de Fotos</h2>
+                <button id="clearGallery"
+                    class="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-5 py-2.5">
+                    🗑️ Limpiar Todo
+                </button>
+            </div>
+            
+            <div id="gallery" class="bg-white rounded-lg border-2 border-gray-200 p-4 min-h-[180px]">
+                <p class="gallery-empty">No hay fotos capturadas aún</p>
+            </div>
+        </div>
     </div>
-
-    <canvas id="canvas" width="300" height="300"> </canvas>
     <script src="./app.js"></script>
+    <script src="./sw.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
 </body>
-
 </html>
